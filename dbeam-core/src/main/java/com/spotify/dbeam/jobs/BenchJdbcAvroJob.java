@@ -110,7 +110,12 @@ public class BenchJdbcAvroJob {
         ), Stream.of(
             Stats
                 .of((Iterable<Long>) this.metrics.stream()
-                    .map(m -> m.get("bytesWritten") / m.get("writeElapsedMs"))::iterator)
+                    .map(m -> {
+                      if(m.get("writeElapsedMs") == 0L)
+                        return 0L;
+                      else
+                        return m.get("bytesWritten") / m.get("writeElapsedMs");
+                    })::iterator)
         )).collect(Collectors.toList());
     final Map<String, Function<Stats, Double>> relevantStats = ImmutableMap.of(
         "max    ", Stats::max,
